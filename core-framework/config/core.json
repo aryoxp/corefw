@@ -1,0 +1,8 @@
+{
+  "environment": "DEV",
+  "config": {
+    "default-timezone": "Asia/Tokyo",
+    "default-controller": "home",
+    "default-method": "index"
+  }
+}

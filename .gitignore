@@ -1,0 +1,6 @@
+\.\_.*
+app
+.vscode
+app.php
+index.plain.php
+phpinfo.php
