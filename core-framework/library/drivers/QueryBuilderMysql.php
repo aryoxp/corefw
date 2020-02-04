@@ -299,14 +299,14 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
 
     // Ordering
 
-    public function orderBy( $column, $order = QB::OP_ORDER_ASC ) {
+    public function orderBy( $column, $order = QB::ORDER_ASC ) {
         if(!empty( $this->_orderBy ))
             $this->_orderBy .= ", ";
         $o = "";
         switch( $order ) {
-            case QB::OP_ORDER_ASC: $o = "ASC"; break;
-            case QB::OP_ORDER_DESC: $o = "DESC"; break;
-            case QB::OP_ORDER_RAND: $o = "RAND()"; break;
+            case QB::ORDER_ASC: $o = "ASC"; break;
+            case QB::ORDER_DESC: $o = "DESC"; break;
+            case QB::ORDER_RAND: $o = "RAND()"; break;
         }
         $this->_orderBy .= $column . " " . $o;
         return $this;
