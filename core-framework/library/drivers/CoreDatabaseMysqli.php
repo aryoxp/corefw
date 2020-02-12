@@ -112,20 +112,21 @@ class CoreDatabaseMysqli implements IDatabase {
     if($this->link) {
       $this->lastQuery = $sql;
       // execute query
-      $result = $this->link->query($sql); //var_dump($result);
+      $result = $this->link->query($sql); // var_dump($result);
       if($result === false) {
         $this->error = $this->link->error;
         throw new CoreError($this->error);
       } else {
         // process result
         if( preg_match( "/^\(?(select|show)/i", $sql ) ) {
+          $rows = array();
           do {
             if($asObject)
               $row = @$result->fetch_object();
             else $row = @$result->fetch_array();
             if($row) $rows[] = $row;
           } while ($row);
-          return isset( $rows ) ? $rows : null;
+          return $rows;
         } else {
           $this->insertId = $this->link->insert_id;
           $this->affectedRows = $this->link->affected_rows;

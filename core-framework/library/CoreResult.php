@@ -17,11 +17,11 @@ class CoreResult {
     @header('content-type:application/json');
 
     $result = new stdClass;
-    $result->status = true;
-    $result->error = null;
-    $error->result = $result;
+    $result->status = $this->status;
+    $result->error = $this->error;
+    $result->result = $this->result;
 
-    echo json_encode($error);
+    echo json_encode($result);
   }
 
   public static function instance( 

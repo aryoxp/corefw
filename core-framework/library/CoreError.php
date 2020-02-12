@@ -1,7 +1,7 @@
 <?php
 
 class CoreError extends Exception {
-	
+
 	public function show() {
     @header('content-type:application/json');
 

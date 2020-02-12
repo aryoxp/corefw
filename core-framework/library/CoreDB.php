@@ -6,6 +6,6 @@ class CoreDB {
   const MYSQLI = 1;
 
   // connection cache container
-  private static $connectionCache;
+  static $connectionCache;
 
 }

@@ -9,6 +9,7 @@ interface IDatabase {
 	// informational templates
 	public function getVersion();
 	public function getInsertId();
+	public function getAffectedRows();
 	public function getError();
 
   // query template
