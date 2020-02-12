@@ -327,7 +327,8 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       }
 
       foreach ($columnValues as $c => $v) {
-        $cv[] = QB::bt($c) . " = " . QB::qt($v) . "";
+        if($v === null) $cv[] = QB::bt($c) . " = NULL";
+        else $cv[] = QB::bt($c) . " = " . QB::qt($v) . "";
       }
     }
     $this->_columnValues .= implode(", ", $cv);
@@ -438,6 +439,8 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       $this->_columns .= ", ";
     }
 
+    // "SELECT ?, ?", ['a', 'b']
+    // "SELECT a, b"
     $sql = preg_replace_callback('/\?/',
       function ($match) use (&$paramValues) {
         return array_shift($paramValues); // wrap in quotes and sanitize

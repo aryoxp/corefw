@@ -490,7 +490,7 @@ class QB extends CoreService {
     if ($value instanceof QBRaw) {
       return $value->raw;
     }
-
+    if ($value === null) return sprintf('%s', $value);
     return sprintf('\'%s\'', $value);
   }
 
