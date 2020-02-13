@@ -1,7 +1,6 @@
 <?php
 
-class QB extends CoreService
-{
+class QB extends CoreService {
 
   const OP_AND        = 0;
   const OP_OR         = 1;
@@ -35,7 +34,8 @@ class QB extends CoreService
   protected $_columnValues;
   protected $_uColumnValues;
   protected $_join;
-  protected $_where = array();
+  protected $_joinAliases = array();
+  protected $_where       = array();
   protected $_groupBy;
   protected $_having;
   protected $_orderBy;
@@ -58,30 +58,25 @@ class QB extends CoreService
 
   protected $_args;
 
-  public function __construct($table, $dbConfigKeyOrDb)
-  {
+  public function __construct($table, $dbConfigKeyOrDb) {
     $this->table($table);
     $this->setKey($dbConfigKeyOrDb);
   }
 
-  public function setKey($dbConfigKeyOrDb)
-  {
+  public function setKey($dbConfigKeyOrDb) {
     $this->_dbConfigKeyOrDb = $dbConfigKeyOrDb;
   }
 
-  public function setData($_args = array())
-  {
+  public function setData($_args = array()) {
     $this->_args = $_args;
     return $this;
   }
 
-  public function getData()
-  {
+  public function getData() {
     return $this->_args;
   }
 
-  public function table($table = null)
-  {
+  public function table($table = null) {
     if ($table !== null) {
       $this->_table = QB::bt($table);
     }
@@ -91,8 +86,7 @@ class QB extends CoreService
 
   // Getter
 
-  public function get()
-  { // get SQL query string
+  public function get() { // get SQL query string
 
     if (
       $this->_table === null
@@ -102,75 +96,84 @@ class QB extends CoreService
     }
 
     switch ($this->_commandType) {
-      case QB::COMMAND_TYPE_SELECT:
-        $this->_command = "SELECT";
-        $this->_command .=
-          ($this->_distinct) ? " DISTINCT" : "";
-        $this->_sql = $this->_command . " " . $this->_columns . " "
-          . "FROM " . $this->_table . " ";
-        break;
-      case QB::COMMAND_TYPE_INSERT:
-        $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
-        $this->_command = "INSERT " . ($this->_ignore ? "IGNORE " : "");
-        $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
-        $this->_values  = array_map(array('QB', 'qt'), $this->_values);
-        $this->_sql     = $this->_command . "INTO " . $this->_table . " "
-          . "( " . implode(", ", $this->_columns) . " ) VALUES ( " . implode(", ", $this->_values) . " ) ";
-        break;
-      case QB::COMMAND_TYPE_INSERT_UPDATE:
-        $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
-        $this->_command = "INSERT " . ($this->_ignore ? "IGNORE " : "");
-        $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
-        $this->_values  = array_map(array('QB', 'qt'), $this->_values);
-        $this->_sql     = $this->_command . "INTO " . $this->_table . " "
-          . "( " . implode(", ", $this->_columns) . " ) VALUES ( " . implode(", ", $this->_values) . " ) "
-          . "ON DUPLICATE KEY UPDATE " . $this->_uColumnValues;
-        break;
-      case QB::COMMAND_TYPE_INSERT_MULTIVALUES:
-        $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
-        $this->_command = "INSERT " . ($this->_ignore ? "IGNORE " : "");
-        $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
-        $this->_sql     = $this->_command . " INTO " . $this->_table . " "
-          . "( " . implode(", ", $this->_columns) . " ) VALUES ";
-        $mvs = array();
-        foreach ($this->_multiValues as $mv) {
-          $mvs[] = array_map(array('QB', 'qt'), $mv);
-        }
-        $vs = array();
-        foreach ($mvs as $mv) {
-          $vs[] = "( " . implode(", ", $mv) . " )";
-        }
-        // implode columns
-        $this->_sql .= implode(", ", $vs); // implode rows
-        break;
-      case QB::COMMAND_TYPE_DELETE:
-        $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
-        $this->_command = "DELETE";
-        $this->_sql     = $this->_command . " FROM " . $this->_table . " ";
-        break;
-      case QB::COMMAND_TYPE_DELETE_MULTIVALUES:
-        $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
-        $this->_command = "DELETE";
-        $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
-        $this->_sql     = $this->_command . " FROM " . $this->_table . " "
-          . "WHERE (" . implode(", ", $this->_columns) . ") IN (";
-        $mvs = array();
-        foreach ($this->_multiValues as $mv) {
-          $mvs[] = array_map(array('QB', 'qt'), $mv);
-        }
-        $vs = array();
-        foreach ($mvs as $mv) {
-          $vs[] = "( " . implode(", ", $mv) . " )";
-        }
-        // implode columns
-        $this->_sql .= implode(", ", $vs); // implode rows
-        $this->_sql .= ")";
-        break;
-      case QB::COMMAND_TYPE_UPDATE:
-        $this->_command = "UPDATE";
-        $this->_sql     = $this->_command . " " . $this->_table . " SET "
-          . $this->_columnValues . " ";
-        break;
+    case QB::COMMAND_TYPE_SELECT:
+      $this->_command = "SELECT";
+      $this->_command .=
+      ($this->_distinct) ? " DISTINCT" : "";
+      $this->_sql = $this->_command . " " . $this->_columns . " "
+      . "FROM " . $this->_table . " ";
+      break;
+    case QB::COMMAND_TYPE_INSERT:
+      $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
+      $this->_command = "INSERT " . ($this->_ignore ? "IGNORE " : "");
+      $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
+      $this->_values  = array_map(array('QB', 'qt'), $this->_values);
+      $this->_sql     = $this->_command . "INTO " . $this->_table . " "
+      . "( " . implode(", ", $this->_columns) . " ) VALUES ( " . implode(", ", $this->_values) . " ) ";
+      break;
+    case QB::COMMAND_TYPE_INSERT_UPDATE:
+      $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
+      $this->_command = "INSERT " . ($this->_ignore ? "IGNORE " : "");
+      $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
+      $this->_values  = array_map(array('QB', 'qt'), $this->_values);
+      $this->_sql     = $this->_command . "INTO " . $this->_table . " "
+      . "( " . implode(", ", $this->_columns) . " ) VALUES ( " . implode(", ", $this->_values) . " ) "
+      . "ON DUPLICATE KEY UPDATE " . $this->_uColumnValues;
+      break;
+    case QB::COMMAND_TYPE_INSERT_MULTIVALUES:
+      $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
+      $this->_command = "INSERT " . ($this->_ignore ? "IGNORE " : "");
+      $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
+      $this->_sql     = $this->_command . " INTO " . $this->_table . " "
+      . "( " . implode(", ", $this->_columns) . " ) VALUES ";
+      $mvs = array();
+      foreach ($this->_multiValues as $mv) {
+        $mvs[] = array_map(array('QB', 'qt'), $mv);
+      }
+      $vs = array();
+      foreach ($mvs as $mv) {
+        $vs[] = "( " . implode(", ", $mv) . " )";
+      }
+      // implode columns
+      $this->_sql .= implode(", ", $vs); // implode rows
+      break;
+    case QB::COMMAND_TYPE_DELETE:
+      // $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
+      preg_match('/^(.+)\ (.+)/i', $this->_table, $table);
+      $alias[] = $table[2];
+      foreach($this->_joinAliases as $a) {
+        $alias[] = QB::bt($a);
+      }
+      if (!empty($this->_join)) {
+        preg_match('/^(.+)\ (.+)/i', $this->_join, $table);
+      }
+      $this->_command = "DELETE";
+      if(count($alias) > 1) $this->_command .= " " . implode(",", $alias) . " ";
+      $this->_sql     = $this->_command . " FROM " . $this->_table . " ";
+      break;
+    case QB::COMMAND_TYPE_DELETE_MULTIVALUES:
+      // $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
+      $this->_command = "DELETE";
+      $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
+      $this->_sql     = $this->_command . " FROM " . $this->_table . " "
+      . "WHERE (" . implode(", ", $this->_columns) . ") IN (";
+      $mvs = array();
+      foreach ($this->_multiValues as $mv) {
+        $mvs[] = array_map(array('QB', 'qt'), $mv);
+      }
+      $vs = array();
+      foreach ($mvs as $mv) {
+        $vs[] = "( " . implode(", ", $mv) . " )";
+      }
+      // implode columns
+      $this->_sql .= implode(", ", $vs); // implode rows
+      $this->_sql .= ")";
+      break;
+    case QB::COMMAND_TYPE_UPDATE:
+      $this->_command = "UPDATE";
+      $this->_sql     = $this->_command . " " . $this->_table . " SET "
+      . $this->_columnValues . " ";
+      break;
     }
     if (!empty($this->_join)) {
       $this->_sql .= $this->_join;
@@ -199,40 +202,36 @@ class QB extends CoreService
     return trim($this->_sql);
   }
 
-  public function begin()
-  {
+  public function begin() {
     $db = ($this->_dbConfigKeyOrDb instanceof IDatabase) ?
-      $this->_dbConfigKeyOrDb :
-      $this->getInstance($this->_dbConfigKeyOrDb);
+    $this->_dbConfigKeyOrDb :
+    $this->getInstance($this->_dbConfigKeyOrDb);
 
     $db->begin();
     return $this;
   }
 
-  public function commit()
-  {
+  public function commit() {
     $db = ($this->_dbConfigKeyOrDb instanceof IDatabase) ?
-      $this->_dbConfigKeyOrDb :
-      $this->getInstance($this->_dbConfigKeyOrDb);
+    $this->_dbConfigKeyOrDb :
+    $this->getInstance($this->_dbConfigKeyOrDb);
 
     $db->commit();
     return $this;
   }
 
-  public function rollback()
-  {
+  public function rollback() {
     $db = ($this->_dbConfigKeyOrDb instanceof IDatabase) ?
-      $this->_dbConfigKeyOrDb :
-      $this->getInstance($this->_dbConfigKeyOrDb);
+    $this->_dbConfigKeyOrDb :
+    $this->getInstance($this->_dbConfigKeyOrDb);
 
     $db->commit();
     return $this;
   }
 
-  public function execute()
-  {
+  public function execute() {
 
-    if ($this->_commandType != QB::COMMAND_TYPE_SELECT) :
+    if ($this->_commandType != QB::COMMAND_TYPE_SELECT):
 
       // var_dump($this->_dbConfigKeyOrDb);
 
@@ -242,8 +241,8 @@ class QB extends CoreService
       }
 
       $db = ($this->_dbConfigKeyOrDb instanceof IDatabase) ?
-        $this->_dbConfigKeyOrDb :
-        $this->getInstance($this->_dbConfigKeyOrDb);
+      $this->_dbConfigKeyOrDb :
+      $this->getInstance($this->_dbConfigKeyOrDb);
 
       if (!$db instanceof IDatabase) {
         throw new CoreError("QB::execute(): Unable to get an instance of database connection.");
@@ -263,10 +262,9 @@ class QB extends CoreService
     return $this;
   }
 
-  public function executeQuery($asObject = false)
-  {
+  public function executeQuery($asObject = false) {
 
-    if ($this->_commandType == QB::COMMAND_TYPE_SELECT) :
+    if ($this->_commandType == QB::COMMAND_TYPE_SELECT):
 
       $this->get(); // generate query from QueryBuilder
       if (empty($this->_sql)) {
@@ -274,8 +272,8 @@ class QB extends CoreService
       }
 
       $db = ($this->_dbConfigKeyOrDb instanceof IDatabase) ?
-        $this->_dbConfigKeyOrDb :
-        $this->getInstance($this->_dbConfigKeyOrDb);
+      $this->_dbConfigKeyOrDb :
+      $this->getInstance($this->_dbConfigKeyOrDb);
 
       if (!$db instanceof IDatabase) {
         throw new Exception("QB::executeQuery(): Unable to get an instance of database connection.");
@@ -292,8 +290,7 @@ class QB extends CoreService
     endif;
   }
 
-  public function map($modelOrClassName = null)
-  {
+  public function map($modelOrClassName = null) {
 
     // if Command Type is COMMAND_TYPE_SELECT
     try {
@@ -322,8 +319,8 @@ class QB extends CoreService
     }
 
     $db = ($this->_dbConfigKeyOrDb instanceof IDatabase) ?
-      $this->_dbConfigKeyOrDb :
-      $this->getInstance($this->_dbConfigKeyOrDb);
+    $this->_dbConfigKeyOrDb :
+    $this->getInstance($this->_dbConfigKeyOrDb);
 
     if (!$db instanceof IDatabase) {
       throw new Exception("QB::executeQuery(): Unable to get an instance of database connection.");
@@ -364,23 +361,19 @@ class QB extends CoreService
     return $collection;
   }
 
-  public function insertId()
-  {
+  public function insertId() {
     return $this->_insertId;
   }
 
-  public function result()
-  {
+  public function result() {
     return $this->_result;
   }
 
-  public function getFields()
-  {
+  public function getFields() {
     return $this->_fields;
   }
 
-  public function callback($functionName, $args = array())
-  {
+  public function callback($functionName, $args = array()) {
     $this->_callbackFunction = $functionName;
     $this->_callbackArgs     = $args;
     return $this;
@@ -388,25 +381,25 @@ class QB extends CoreService
 
   // Clear
 
-  public function clear($clearType = QB::CLEAR_DEFAULT)
-  {
+  public function clear($clearType = QB::CLEAR_DEFAULT) {
 
-    $this->_commandType  = null;
-    $this->_command      = null;
-    $this->_columns      = null;
-    $this->_values       = null;
-    $this->_multiValues  = null;
-    $this->_columnValues = null;
+    $this->_commandType   = null;
+    $this->_command       = null;
+    $this->_columns       = null;
+    $this->_values        = null;
+    $this->_multiValues   = null;
+    $this->_columnValues  = null;
     $this->_uColumnValues = null;
-    $this->_join         = null;
-    $this->_where        = array();
-    $this->_groupBy      = null;
-    $this->_having       = null;
-    $this->_orderBy      = null;
-    $this->_limit        = null;
-    $this->_sql          = null;
-    $this->_ignore       = null;
-    $this->_insertId     = null;
+    $this->_join          = null;
+    $this->_joinAliases   = array();
+    $this->_where         = array();
+    $this->_groupBy       = null;
+    $this->_having        = null;
+    $this->_orderBy       = null;
+    $this->_limit         = null;
+    $this->_sql           = null;
+    $this->_ignore        = null;
+    $this->_insertId      = null;
 
     $this->_table      = null;
     $this->_model      = null;
@@ -425,13 +418,11 @@ class QB extends CoreService
 
   // Static Helper functions of QueryBuilder
 
-  public static function raw($string)
-  {
+  public static function raw($string) {
     return new QBRaw($string);
   }
 
-  public static function instance($dbConfigKeyOrDb, $table = null)
-  {
+  public static function instance($dbConfigKeyOrDb, $table = null) {
     if ($dbConfigKeyOrDb instanceof IDatabase) {
       $qb = new QueryBuilderMysql($table, $dbConfigKeyOrDb);
     } else {
@@ -440,22 +431,21 @@ class QB extends CoreService
       if ($dbConfig) {
         $driver = property_exists($dbConfig, 'driver') ? $dbConfig->driver : 'mysqli';
         switch ($driver) {
-          case 'mysql':
-          case 'mysqli':
-          default:
-            $qb = new QueryBuilderMysql(
-              $table,
-              $dbConfig->config
-            );
-            break;
+        case 'mysql':
+        case 'mysqli':
+        default:
+          $qb = new QueryBuilderMysql(
+            $table,
+            $dbConfig->config
+          );
+          break;
         }
       }
     }
     return $qb;
   }
 
-  public static function bt($column)
-  {
+  public static function bt($column) {
     $rColumn = preg_replace_callback(
       '/(.+?)\.(.+) as (.+$)/i',
       function ($matches) { //var_dump($matches);
@@ -503,42 +493,39 @@ class QB extends CoreService
     return sprintf('`%s`', $column);
   }
 
-  public static function qt($value)
-  {
+  public static function qt($value) {
     if ($value instanceof QBRaw) {
       return $value->raw;
     }
-    if ($value === null) return 'NULL';
+    if ($value === null) {
+      return 'NULL';
+    }
+
     return sprintf('\'%s\'', $value);
   }
 
-  public static function connector($connectorType = QB::OP_AND)
-  {
+  public static function connector($connectorType = QB::OP_AND) {
     switch ($connectorType) {
-      case QB::OP_AND:
-        return "AND";
-      case QB::OP_OR:
-        return "OR";
+    case QB::OP_AND:
+      return "AND";
+    case QB::OP_OR:
+      return "OR";
     }
   }
 
-  public static function esc($value)
-  {
+  public static function esc($value) {
     return addslashes($value);
   }
 
-  protected static function fields($model)
-  {
+  protected static function fields($model) {
     return array_keys(get_object_vars($model)); //var_dump($attrs);
   }
 
-  public function getInsertId()
-  {
+  public function getInsertId() {
     return $this->_insertId;
   }
 
-  public function getAffectedRows()
-  {
+  public function getAffectedRows() {
     return $this->_affectedRows;
   }
 }

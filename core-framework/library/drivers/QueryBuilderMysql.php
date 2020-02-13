@@ -509,39 +509,47 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
   // Join
 
   public function join($table, $leftColumnOrKeyPairs, $rightColumn = null, $operator = "=") {
+    preg_match('/^(.+)\ (.+)$/', $table, $match);
+    $this->_joinAliases[] = $match[2];
     if (is_array($leftColumnOrKeyPairs)) {
       $pairs = array();
       foreach ($leftColumnOrKeyPairs as $l => $r) {
         $pairs[] = QB::bt($l) . " " . $operator . " " . QB::bt($r);
       }
-      $this->_join .= "JOIN " . QB::bt($table)
+      $this->_join .= "JOIN " . QB::bt($match[1])
       . " ON " . implode(" AND ", $pairs);
       return $this;
     }
 
-    $this->_join .= "JOIN " . QB::bt($table)
+    $this->_join .= "JOIN " . QB::bt($match[1])
     . " ON " . QB::bt($leftColumnOrKeyPairs) . " " . $operator . " " . QB::bt($rightColumn) . " ";
     return $this;
   }
 
   public function leftJoin($table, $leftColumnOrKeyPairs, $rightColumn = null, $operator = "=") {
+    preg_match('/^(.+)\ (.+)$/', $table, $match);
+    $this->_joinAliases[] = $match[2];
     if (is_array($leftColumnOrKeyPairs)) {
       $pairs = array();
       foreach ($leftColumnOrKeyPairs as $l => $r) {
         $pairs[] = $l . " " . $operator . " " . $r;
       }
-      $this->_join .= "LEFT JOIN " . QB::bt($table)
+      $this->_join .= "LEFT JOIN " . QB::bt($match[1] 
+      . ($match[2] ? " " . $match[2] : ''))
       . " ON " . implode(" AND " . $pairs);
       return $this;
     }
 
-    $this->_join .= "LEFT JOIN " . QB::bt($table)
+    $this->_join .= "LEFT JOIN " . QB::bt($match[1]
+    . ($match[2] ? " " . $match[2] : ''))
     . " ON " . QB::bt($leftColumnOrKeyPairs) . " " . $operator . " " . QB::bt($rightColumn) . " ";
     return $this;
   }
 
   public function crossJoin($table) {
-    $this->_join .= "CROSS JOIN " . QB::bt($table);
+    preg_match('/^(.+)\ (.+)$/', $table, $match);
+    $this->_joinAliases[] = $match[2];
+    $this->_join .= "CROSS JOIN " . QB::bt($match[1]);
     return $this;
   }
 
