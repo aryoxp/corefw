@@ -532,11 +532,11 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
     if (is_array($leftColumnOrKeyPairs)) {
       $pairs = array();
       foreach ($leftColumnOrKeyPairs as $l => $r) {
-        $pairs[] = $l . " " . $operator . " " . $r;
+        $pairs[] = QB::bt($l) . " " . $operator . " " . QB::bt($r);
       }
       $this->_join .= "LEFT JOIN " . QB::bt($match[1] 
       . ($match[2] ? " " . $match[2] : ''))
-      . " ON " . implode(" AND " . $pairs);
+      . " ON " . implode(" AND ", $pairs) . " ";
       return $this;
     }
 
