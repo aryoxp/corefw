@@ -139,8 +139,9 @@ class QB extends CoreService {
       break;
     case QB::COMMAND_TYPE_DELETE:
       // $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
+      $alias = array();
       preg_match('/^(.+)\ (.+)/i', $this->_table, $table);
-      $alias[] = $table[2];
+      if(isset($table[2])) $alias[] = $table[2];
       foreach($this->_joinAliases as $a) {
         $alias[] = QB::bt($a);
       }

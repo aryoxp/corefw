@@ -7,7 +7,8 @@ if (!CORE_APP) {
   Core Framework will now exit.");
 }
 
-session_set_cookie_params(array('Secure' => false, 'SameSite' => 'Lax'));
+if (version_compare(PHP_VERSION, '7.3.0') >= 0)
+  session_set_cookie_params(['Secure' => false, 'SameSite' => 'Lax']);
 session_start();
 
 // defining system and application structure paths
@@ -63,8 +64,9 @@ try {
       . ".");
   }
 
-} catch (Exception $e) {
-  $e->show();
+} catch (CoreError $e) {
+  if(is_a($e, 'CoreError')) $e->show();
+  else echo $e->getMessage();
   exit;
 }
 

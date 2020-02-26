@@ -41,7 +41,7 @@ class CoreDatabaseMysqli implements IDatabase {
 		$this->link = new mysqli(
       $this->dbConfig->host 
         . (
-          $this->dbConfig->port 
+          isset($this->dbConfig->port) 
           ? ":" . $this->dbConfig->port
           : ''
         ),
