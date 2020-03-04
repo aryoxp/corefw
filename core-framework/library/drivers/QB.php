@@ -149,7 +149,7 @@ class QB extends CoreService {
         preg_match('/^(.+)\ (.+)/i', $this->_join, $table);
       }
       $this->_command = "DELETE";
-      if(count($alias) > 1) $this->_command .= " " . implode(",", $alias) . " ";
+      if(count($alias) >= 1) $this->_command .= " " . implode(",", $alias) . " ";
       $this->_sql     = $this->_command . " FROM " . $this->_table . " ";
       break;
     case QB::COMMAND_TYPE_DELETE_MULTIVALUES:
