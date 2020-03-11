@@ -77,7 +77,9 @@ class QB extends CoreService {
   }
 
   public function table($table = null) {
-    if ($table !== null) {
+    if ($table instanceof QBRaw) {
+      $this->_table = $table->raw;
+    } elseif ($table !== null) {
       $this->_table = QB::bt($table);
     }
 
@@ -268,6 +270,7 @@ class QB extends CoreService {
     if ($this->_commandType == QB::COMMAND_TYPE_SELECT):
 
       $this->get(); // generate query from QueryBuilder
+      
       if (empty($this->_sql)) {
         throw new Exception("QB::executeQuery(): Unspecified SQL Query.");
       }

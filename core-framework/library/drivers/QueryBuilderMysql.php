@@ -377,7 +377,8 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
     case QB::ORDER_RAND:$o = "RAND()";
       break;
     }
-    $this->_orderBy .= $column . " " . $o . " ";
+    if($order == QB::ORDER_RAND) $this->_orderBy .= $o . " ";
+    else $this->_orderBy .= $column . " " . $o . " ";
     return $this;
   }
 
