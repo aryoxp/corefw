@@ -19,6 +19,15 @@ class CoreView {
     return self::$instance;
   }
 
+  public function language($path) {
+    CoreLanguage::instance()->load($path);
+  }
+
+  public function l($key = '') {
+    if($key == '' || trim($key) == '') return "-";
+    return CoreLanguage::instance()->get($key);
+  }
+
   public function json($data) {
     header('content-type:application/json');
     echo json_encode($data);

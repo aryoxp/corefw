@@ -13,7 +13,7 @@ class CoreConfig {
 
     $appConfigFile = CORE_APP . "config" . DS . "core.json";
     if (file_exists($appConfigFile) and is_readable($appConfigFile)) {
-      $appConfig = file_get_contents();
+      $appConfig = file_get_contents($appConfigFile);
       foreach ($appConfig as $key => $value) {
         $this->coreConfig->$key = $value;
       }
