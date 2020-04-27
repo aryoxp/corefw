@@ -23,7 +23,21 @@ class CoreLanguage {
   }
 
   public function get($key = '') {
-    return (isset(CoreLanguage::$_CORE_LANG[$key])) ? CoreLanguage::$_CORE_LANG[$key] : '-';
+    $args = func_get_args();
+    array_shift($args);
+    return (isset(CoreLanguage::$_CORE_LANG[$key])) 
+      ? $this->f(CoreLanguage::$_CORE_LANG[$key], ...$args) 
+      : '-';
+  }
+
+  private function f() {
+    $params = func_get_args();
+    $text = array_shift($params);
+    $i = count($params);
+    // var_dump($params, $text, $i);
+    while($i--)
+      $text = preg_replace('/\{'.$i.'\}/i', $params[$i], $text);
+    return $text;
   }
 
 

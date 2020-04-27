@@ -23,9 +23,9 @@ class CoreView {
     CoreLanguage::instance()->load($path);
   }
 
-  public function l($key = '') {
+  public function l($key = '', ...$params) {
     if($key == '' || trim($key) == '') return "-";
-    return CoreLanguage::instance()->get($key);
+    return CoreLanguage::instance()->get($key, ...$params);
   }
 
   public function json($data) {
