@@ -274,6 +274,56 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
 
   }
 
+  public function insertUpdateModels($models, $columns = array(), $updates = array()) {
+
+    if (is_array($models) and count($models) == 0) {
+      throw new CoreError("Error: Empty models.");
+    }
+    if (!empty($columns)) {
+      foreach ($columns as $c) {
+        $this->_columns[] = $c;
+      }
+    } else if (empty($columns)) {
+      if (is_array($models)) {
+        $columns = QB::fields($models[0]);
+      } else {
+        $columns = QB::fields($models);
+      }
+      foreach ($columns as $c) {
+        $this->_columns[] = $c;
+      }
+    }
+
+    $this->_multiValues = array();
+    if (is_array($models)) {
+      foreach ($models as $model) {
+        $values = array();
+        foreach ($columns as $c) {
+          $values[$c] = $model->$c;
+        }
+
+        $this->_multiValues[] = $values;
+      }
+    } else {
+      $values = array();
+      foreach ($columns as $c) {
+        $values[$c] = $models->$c;
+      }
+
+      $this->_multiValues[] = $values;
+    }
+
+    $ucols = array();
+    foreach($updates as $ucol) {
+      $ucols[] = QB::bt($ucol) . ' = VALUES(' . QB::bt($ucol). ')';
+    }
+    $this->_updateColumns = implode(", ", $ucols);
+
+    $this->_commandType = QB::COMMAND_TYPE_INSERT_UPDATE_MULTIVALUES;
+    return $this;
+
+  }
+
   public function ignore() {
     $this->_ignore = true;
     return $this;

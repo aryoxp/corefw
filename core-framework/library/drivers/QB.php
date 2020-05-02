@@ -10,14 +10,15 @@ class QB extends CoreService {
   const ORDER_DESC = 11;
   const ORDER_RAND = 12;
 
-  const COMMAND_TYPE_SELECT             = 30;
-  const COMMAND_TYPE_INSERT             = 31;
-  const COMMAND_TYPE_INSERT_UPDATE      = 32;
-  const COMMAND_TYPE_UPDATE             = 33;
-  const COMMAND_TYPE_DELETE             = 34;
-  const COMMAND_TYPE_INSERT_MULTIVALUES = 35;
-  const COMMAND_TYPE_DELETE_MULTIVALUES = 36;
-  const COMMAND_TYPE_RAW                = 90;
+  const COMMAND_TYPE_SELECT                    = 30;
+  const COMMAND_TYPE_INSERT                    = 31;
+  const COMMAND_TYPE_INSERT_UPDATE             = 32;
+  const COMMAND_TYPE_UPDATE                    = 33;
+  const COMMAND_TYPE_DELETE                    = 34;
+  const COMMAND_TYPE_INSERT_MULTIVALUES        = 35;
+  const COMMAND_TYPE_DELETE_MULTIVALUES        = 36;
+  const COMMAND_TYPE_INSERT_UPDATE_MULTIVALUES = 37;
+  const COMMAND_TYPE_RAW                       = 90;
 
   const DRIVER_MYSQL = 20;
 
@@ -29,6 +30,7 @@ class QB extends CoreService {
   protected $_command;
   protected $_distinct;
   protected $_columns;
+  protected $_updateColumns;
   protected $_values;
   protected $_multiValues;
   protected $_columnValues;
@@ -106,28 +108,28 @@ class QB extends CoreService {
       . "FROM " . $this->_table . " ";
       break;
     case QB::COMMAND_TYPE_INSERT:
-      $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
-      $this->_command = "INSERT " . ($this->_ignore ? "IGNORE " : "");
-      $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
-      $this->_values  = array_map(array('QB', 'qt'), $this->_values);
-      $this->_sql     = $this->_command . "INTO " . $this->_table . " "
-      . "( " . implode(", ", $this->_columns) . " ) VALUES ( " . implode(", ", $this->_values) . " ) ";
+      $this->_table    = preg_replace('/\ .+$/i', '', $this->_table);
+      $this->_command  = "INSERT " . ($this->_ignore ? "IGNORE " : "");
+      $this->_scolumns = array_map(array('QB', 'bt'), $this->_columns);
+      $this->_svalues  = array_map(array('QB', 'qt'), $this->_values);
+      $this->_sql      = $this->_command . "INTO " . $this->_table . " "
+      . "( " . implode(", ", $this->_scolumns) . " ) VALUES ( " . implode(", ", $this->_svalues) . " ) ";
       break;
     case QB::COMMAND_TYPE_INSERT_UPDATE:
-      $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
-      $this->_command = "INSERT " . ($this->_ignore ? "IGNORE " : "");
-      $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
-      $this->_values  = array_map(array('QB', 'qt'), $this->_values);
-      $this->_sql     = $this->_command . "INTO " . $this->_table . " "
-      . "( " . implode(", ", $this->_columns) . " ) VALUES ( " . implode(", ", $this->_values) . " ) "
+      $this->_table    = preg_replace('/\ .+$/i', '', $this->_table);
+      $this->_command  = "INSERT " . ($this->_ignore ? "IGNORE " : "");
+      $this->_scolumns = array_map(array('QB', 'bt'), $this->_columns);
+      $this->_svalues  = array_map(array('QB', 'qt'), $this->_values);
+      $this->_sql      = $this->_command . "INTO " . $this->_table . " "
+      . "( " . implode(", ", $this->_scolumns) . " ) VALUES ( " . implode(", ", $this->_svalues) . " ) "
       . "ON DUPLICATE KEY UPDATE " . $this->_uColumnValues;
       break;
     case QB::COMMAND_TYPE_INSERT_MULTIVALUES:
-      $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
-      $this->_command = "INSERT " . ($this->_ignore ? "IGNORE " : "");
-      $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
-      $this->_sql     = $this->_command . " INTO " . $this->_table . " "
-      . "( " . implode(", ", $this->_columns) . " ) VALUES ";
+      $this->_table    = preg_replace('/\ .+$/i', '', $this->_table);
+      $this->_command  = "INSERT " . ($this->_ignore ? "IGNORE " : "");
+      $this->_scolumns = array_map(array('QB', 'bt'), $this->_columns);
+      $this->_sql      = $this->_command . " INTO " . $this->_table . " "
+      . "( " . implode(", ", $this->_scolumns) . " ) VALUES ";
       $mvs = array();
       foreach ($this->_multiValues as $mv) {
         $mvs[] = array_map(array('QB', 'qt'), $mv);
@@ -139,27 +141,51 @@ class QB extends CoreService {
       // implode columns
       $this->_sql .= implode(", ", $vs); // implode rows
       break;
+    case QB::COMMAND_TYPE_INSERT_UPDATE_MULTIVALUES:
+      $this->_table    = preg_replace('/\ .+$/i', '', $this->_table);
+      $this->_command  = "INSERT " . ($this->_ignore ? "IGNORE " : "");
+      $this->_scolumns = array_map(array('QB', 'bt'), $this->_columns);
+      $this->_sql      = $this->_command . " INTO " . $this->_table . " "
+      . "( " . implode(", ", $this->_scolumns) . " ) VALUES ";
+      $mvs = array();
+      foreach ($this->_multiValues as $mv) {
+        $mvs[] = array_map(array('QB', 'qt'), $mv);
+      }
+      $vs = array();
+      foreach ($mvs as $mv) {
+        $vs[] = "( " . implode(", ", $mv) . " )";
+      }
+      // implode columns
+      $this->_sql .= implode(", ", $vs); // implode rows
+      $this->_sql .= " ON DUPLICATE KEY UPDATE " . $this->_updateColumns;
+      break;
     case QB::COMMAND_TYPE_DELETE:
       // $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
       $alias = array();
       preg_match('/^(.+)\ (.+)/i', $this->_table, $table);
-      if(isset($table[2])) $alias[] = $table[2];
-      foreach($this->_joinAliases as $a) {
+      if (isset($table[2])) {
+        $alias[] = $table[2];
+      }
+
+      foreach ($this->_joinAliases as $a) {
         $alias[] = QB::bt($a);
       }
       if (!empty($this->_join)) {
         preg_match('/^(.+)\ (.+)/i', $this->_join, $table);
       }
       $this->_command = "DELETE";
-      if(count($alias) >= 1) $this->_command .= " " . implode(",", $alias) . " ";
-      $this->_sql     = $this->_command . " FROM " . $this->_table . " ";
+      if (count($alias) >= 1) {
+        $this->_command .= " " . implode(",", $alias) . " ";
+      }
+
+      $this->_sql = $this->_command . " FROM " . $this->_table . " ";
       break;
     case QB::COMMAND_TYPE_DELETE_MULTIVALUES:
       // $this->_table   = preg_replace('/\ .+$/i', '', $this->_table);
-      $this->_command = "DELETE";
-      $this->_columns = array_map(array('QB', 'bt'), $this->_columns);
-      $this->_sql     = $this->_command . " FROM " . $this->_table . " "
-      . "WHERE (" . implode(", ", $this->_columns) . ") IN (";
+      $this->_command  = "DELETE";
+      $this->_scolumns = array_map(array('QB', 'bt'), $this->_columns);
+      $this->_sql      = $this->_command . " FROM " . $this->_table . " "
+      . "WHERE (" . implode(", ", $this->_scolumns) . ") IN (";
       $mvs = array();
       foreach ($this->_multiValues as $mv) {
         $mvs[] = array_map(array('QB', 'qt'), $mv);
@@ -390,6 +416,7 @@ class QB extends CoreService {
     $this->_commandType   = null;
     $this->_command       = null;
     $this->_columns       = null;
+    $this->_updateColumns = null;
     $this->_values        = null;
     $this->_multiValues   = null;
     $this->_columnValues  = null;
