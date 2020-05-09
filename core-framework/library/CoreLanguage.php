@@ -27,7 +27,7 @@ class CoreLanguage {
     array_shift($args);
     return (isset(CoreLanguage::$_CORE_LANG[$key])) 
       ? $this->f(CoreLanguage::$_CORE_LANG[$key], ...$args) 
-      : '-';
+      : $key;
   }
 
   private function f() {

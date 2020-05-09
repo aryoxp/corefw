@@ -48,7 +48,8 @@ class CoreDatabaseMysqli implements IDatabase {
 			$this->dbConfig->user,
 			$this->dbConfig->password,
 			$this->dbConfig->database
-		);
+    );
+    $this->link->set_charset("utf8mb4");
 		$this->lastError = ob_get_contents();
     ob_end_clean();
     
