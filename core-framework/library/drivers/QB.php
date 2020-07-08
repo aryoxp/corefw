@@ -477,6 +477,9 @@ class QB extends CoreService {
   }
 
   public static function bt($column) {
+    
+    if($column instanceof QBRaw) return $column->raw;
+    
     $rColumn = preg_replace_callback(
       '/(.+?)\.(.+) as (.+$)/i',
       function ($matches) { //var_dump($matches);

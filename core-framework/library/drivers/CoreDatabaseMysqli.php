@@ -49,7 +49,9 @@ class CoreDatabaseMysqli implements IDatabase {
 			$this->dbConfig->password,
 			$this->dbConfig->database
     );
-    $this->link->set_charset("utf8mb4");
+    $this->link->set_charset($this->dbConfig->charset ? $this->dbConfig->charset : 'utf8');
+    if($this->dbConfig->collate) $this->link->query("SET collation_connection = " . $this->dbConfig->collate);
+    else $this->link->query("SET collation_connection = utf8_general_ci");
 		$this->lastError = ob_get_contents();
     ob_end_clean();
     
