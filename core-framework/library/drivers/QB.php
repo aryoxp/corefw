@@ -254,7 +254,7 @@ class QB extends CoreService {
     $this->_dbConfigKeyOrDb :
     $this->getInstance($this->_dbConfigKeyOrDb);
 
-    $db->commit();
+    $db->rollback();
     return $this;
   }
 
