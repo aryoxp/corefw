@@ -11,14 +11,13 @@ class CoreConfig {
     $coreConfig = file_get_contents(CORE . "config" . DS . "core.json");
     $this->coreConfig = json_decode($coreConfig);
 
-    $appConfigFile = CORE_APP . "config" . DS . "core.json";
+    $appConfigFile = CORE_APP . DS . "config" . DS . "config.json";
     if (file_exists($appConfigFile) and is_readable($appConfigFile)) {
-      $appConfig = file_get_contents($appConfigFile);
+      $appConfig = json_decode(file_get_contents($appConfigFile));
       foreach ($appConfig as $key => $value) {
-        $this->coreConfig->$key = $value;
+        $this->coreConfig->config->$key = $value;
       }
     }
-
     // set the error reporting environment setup
     switch ($this->coreConfig->environment) {
       case 'DEV':error_reporting(E_ALL);
