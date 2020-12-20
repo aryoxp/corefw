@@ -547,11 +547,12 @@ class QB extends CoreService {
     }
   }
 
-  public static function esc($value) {
-    return addslashes($value);
+  public static function esc($value = null) {
+    if($value !== null) return addslashes($value);
+    else return $value;
   }
 
-  protected static function fields($model) {
+  protected static function fields($model) { 
     return array_keys(get_object_vars($model)); //var_dump($attrs);
   }
 
