@@ -32,15 +32,15 @@ class CoreController {
 
   // get request variables and sanitizes them
   public function post($var, $defaultValue = null) {
-    $var = isset($_POST[$var]) ? trim($_POST[$var]) : $defaultValue;
+    $var = isset($_POST[$var]) ? $_POST[$var] : $defaultValue;
     return $var;
   }
   public function get($var, $defaultValue = null) {
-    $var = isset($_REQUEST[$var]) ? trim($_REQUEST[$var]) : $defaultValue;
+    $var = isset($_GET[$var]) ? $_GET[$var] : $defaultValue;
     return $var;
   }
   public function request($var, $defaultValue = null) {
-    $var = isset($_REQUEST[$var]) ? trim($_REQUEST[$var]) : $defaultValue;
+    $var = isset($_REQUEST[$var]) ? $_REQUEST[$var] : $defaultValue;
     return $var;
   }
 

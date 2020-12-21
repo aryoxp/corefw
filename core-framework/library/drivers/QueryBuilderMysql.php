@@ -84,16 +84,24 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
   }
 
   public function whereIn($column, $values = array()) {
-    $values = array_map(array('QB', 'qt'), $values);
-    $value  = "(" . implode(", ", $values) . ")";
-    $this->where($column, "IN", QB::raw($value));
+    if(count($values)) {
+      $values = array_map(array('QB', 'qt'), $values);
+      $value  = "(" . implode(", ", $values) . ")";
+      $this->where($column, "IN", QB::raw($value));
+    } else {
+      $this->whereRaw("1 = 2");
+    }
     return $this;
   }
 
   public function whereNotIn($column, $values = array()) {
-    $values = array_map(array('QB', 'qt'), $values);
-    $value  = "(" . implode(", ", $values) . ")";
-    $this->where($column, "NOT IN", QB::raw($value));
+    if(count($values)) {
+      $values = array_map(array('QB', 'qt'), $values);
+      $value  = "(" . implode(", ", $values) . ")";
+      $this->where($column, "NOT IN", QB::raw($value));
+    } else {
+      $this->whereRaw("1 = 1");
+    }
     return $this;
   }
 
