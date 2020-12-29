@@ -9,6 +9,10 @@ class Core {
   private $uri;
   private $message;
 
+  const LIBCONFIG = "config";
+  const LIBURI = "uri";
+  const LIBMESSAGE = "message";
+
   private function __construct() {
     // load the autoloader class file manually...
     require_once CORE_LIBRARY . 'CoreAutoloader.php';
@@ -23,6 +27,10 @@ class Core {
   public static function instance() {
     if (Core::$instance == null) Core::$instance = new Core();
     return Core::$instance;
+  }
+
+  public function __get($var) {
+    return $this->$var;
   }
 
   public function getUri($type = null) {
@@ -51,6 +59,11 @@ class Core {
 
   public function getConfig($key) {
     return $this->config->get($key);
+  }
+
+  public function loadConfig($configFile) {
+    $this->config->load($configFile);
+    return $this;
   }
 
   // Message handling

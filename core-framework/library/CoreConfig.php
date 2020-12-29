@@ -5,19 +5,17 @@ class CoreConfig {
 
   static private $instance;
   private $coreConfig;
+  
+  const CONFIG_FILE = "config.json";
+  const CORE_CONFIG_FILE = "core.json";
+  const CONFIG_PATH = "config";
 
   private function __construct() {
 
-    $coreConfig = file_get_contents(CORE . "config" . DS . "core.json");
+    $coreConfig = file_get_contents(CORE . CoreConfig::CONFIG_PATH . DS . CoreConfig::CORE_CONFIG_FILE);
     $this->coreConfig = json_decode($coreConfig);
 
-    $appConfigFile = CORE_APP . DS . "config" . DS . "config.json";
-    if (file_exists($appConfigFile) and is_readable($appConfigFile)) {
-      $appConfig = json_decode(file_get_contents($appConfigFile));
-      foreach ($appConfig as $key => $value) {
-        $this->coreConfig->config->$key = $value;
-      }
-    }
+    $this->load(CoreConfig::CONFIG_FILE);
     // set the error reporting environment setup
     switch ($this->coreConfig->environment) {
       case 'DEV':error_reporting(E_ALL);
@@ -32,6 +30,19 @@ class CoreConfig {
 
   public function get($key) {
     return $this->coreConfig->config->$key;
+  }
+
+  public function load($filepath) {
+    $appConfigFile = CORE_APP . DS . CoreConfig::CONFIG_PATH . DS . $filepath;
+    $status = false;
+    if (file_exists($appConfigFile) and is_readable($appConfigFile)) {
+      $appConfig = json_decode(file_get_contents($appConfigFile));
+      if($appConfig != null) $status = true;
+      foreach ($appConfig as $key => $value) {
+        $this->coreConfig->config->$key = $value;
+      }
+    }
+    return $status;
   }
 
   public static function instance() {
