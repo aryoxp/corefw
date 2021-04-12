@@ -11,6 +11,17 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       throw new Exception("Table name is unspecified");
     }
 
+    $this->_commandType = QB::COMMAND_TYPE_SELECT;
+
+    // if arguments is not an array but list of string...
+    // consider the argument list as an array
+    if (func_num_args() > 1 || 
+      (func_num_args() == 1 && gettype($columns) === "string")) {
+      $this->_columns .= 
+        implode(", ", array_map(array('QB', 'bt'), func_get_args()));
+      return $this;
+    }
+
     if (!empty($columns)) {
       if (is_array($columns[0])) {
         $columns[0] = array_map(array('QB', 'bt'), $columns[0]);
@@ -25,7 +36,6 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
 
     $this->_columns .= empty($columns) ? " * " :
     (is_array($columns[0]) ? implode(", ", $columns[0]) : implode(", ", $columns));
-    $this->_commandType = QB::COMMAND_TYPE_SELECT;
 
     return $this;
   }
