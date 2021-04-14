@@ -29,7 +29,8 @@ class CoreConfig {
   }
 
   public function get($key) {
-    return $this->coreConfig->config->$key;
+    return isset($this->coreConfig->config->$key) ? 
+      $this->coreConfig->config->$key : null;
   }
 
   public function load($filepath) {
