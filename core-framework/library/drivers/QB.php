@@ -541,9 +541,9 @@ class QB extends CoreService {
   public static function connector($connectorType = QB::OP_AND) {
     switch ($connectorType) {
     case QB::OP_AND:
-      return "AND";
+      return " AND ";
     case QB::OP_OR:
-      return "OR";
+      return " OR ";
     }
   }
 
