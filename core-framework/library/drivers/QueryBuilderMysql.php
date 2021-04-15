@@ -13,6 +13,10 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
 
     $this->_commandType = QB::COMMAND_TYPE_SELECT;
 
+    if (!empty($this->_columns)) {
+      $this->_columns .= ", ";
+    }
+
     // if arguments is not an array but list of string...
     // consider the argument list as an array
     if (func_num_args() > 1 || 
@@ -28,10 +32,6 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       } else {
         $columns = array_map(array('QB', 'bt'), $columns);
       }
-    }
-
-    if (!empty($this->_columns)) {
-      $this->_columns .= ", ";
     }
 
     $this->_columns .= empty($columns) ? " * " :
