@@ -33,6 +33,10 @@ class CoreConfig {
       $this->coreConfig->config->$key : null;
   }
 
+  public function getAll() {
+    return $this->coreConfig->config;
+  }
+
   public function load($filepath) {
     $appConfigFile = CORE_APP . DS . CoreConfig::CONFIG_PATH . DS . $filepath;
     $status = false;

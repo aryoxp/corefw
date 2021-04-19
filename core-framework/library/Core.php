@@ -24,8 +24,18 @@ class Core {
     $this->message = CoreMessage::instance();
   }
 
-  public static function instance() {
+  public static function instance($lib = null) {
     if (Core::$instance == null) Core::$instance = new Core();
+    switch($lib) {
+      case Core::LIBCONFIG:
+        return (Core::$instance)->config;
+      case Core::LIBURI:
+        return (Core::$instance)->uri;
+      case Core::LIBMESSAGE:
+        return (Core::$instance)->message;
+      default:
+        return (Core::$instance);
+    }
     return Core::$instance;
   }
 
