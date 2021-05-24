@@ -28,5 +28,9 @@ class CoreResult {
     $result, $status = true, $error = null ) {
     return new CoreResult($result, $status = true, $error = null);
   }
+
+  public static function compress($data) {
+    return base64_encode(gzcompress(json_encode($data), 9));
+  }
 	
 }
