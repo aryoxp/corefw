@@ -1,4 +1,4 @@
-<?php defined('PANADA') or die('Can\'t access directly!');
+<?php // defined('PANADA') or die('Can\'t access directly!');
 
 interface ISession {
 	

@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * A core object that provides access to libraries of the framework.
+ * A core is a singleton object that should be accessed from its
+ * static instance method.
+ */
 class Core {
 
   private static $instance;
@@ -24,6 +28,10 @@ class Core {
     $this->message = CoreMessage::instance();
   }
 
+  /**
+   * A method to get an instance of a requested 
+   * core framework library
+   */
   public static function instance($lib = null) {
     if (Core::$instance == null) Core::$instance = new Core();
     switch($lib) {

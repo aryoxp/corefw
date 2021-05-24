@@ -1,6 +1,6 @@
 <?php
 
-class session_native implements interface_session {
+class CoreSessionNative implements ISession {
 	
 	private $name;
 	
