@@ -441,6 +441,7 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
 
   public function orderBy($column, $order = QB::ORDER_ASC) {
     if (!empty($this->_orderBy)) {
+      $this->_orderBy = trim($this->_orderBy);
       $this->_orderBy .= ", ";
     }
 
@@ -506,7 +507,7 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       function ($match) use (&$paramValues) {
         return array_shift($paramValues); // wrap in quotes and sanitize
       }, $sql);
-    $this->_sql .= $sql;
+    $this->_sql .= $sql . ' ';
     return $this;
   }
 
@@ -522,7 +523,7 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       function ($match) use (&$paramValues) {
         return array_shift($paramValues); // wrap in quotes and sanitize
       }, $sql);
-    $this->_columns .= $sql;
+    $this->_columns .= $sql . ' ';
     return $this;
   }
 
@@ -538,7 +539,7 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       function ($match) use (&$paramValues) {
         return array_shift($paramValues); // wrap in quotes and sanitize
       }, $sql);
-    $this->_where[$this->_groupStack] .= $sql;
+    $this->_where[$this->_groupStack] .= $sql . ' ';
     return $this;
   }
 
@@ -553,7 +554,7 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       function ($match) use (&$paramValues) {
         return array_shift($paramValues); // wrap in quotes and sanitize
       }, $sql);
-    $this->_where[$this->_groupStack] .= $sql;
+    $this->_where[$this->_groupStack] .= $sql . ' ';
     return $this;
   }
 
@@ -566,7 +567,7 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       function ($match) use (&$paramValues) {
         return array_shift($paramValues); // wrap in quotes and sanitize
       }, $sql);
-    $this->_having .= $sql;
+    $this->_having .= $sql . ' ';
     return $this;
   }
 
@@ -579,7 +580,7 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
       function ($match) use (&$paramValues) {
         return array_shift($paramValues); // wrap in quotes and sanitize
       }, $sql);
-    $this->_having .= $sql;
+    $this->_having .= $sql . ' ';
     return $this;
   }
 
@@ -626,19 +627,19 @@ class QueryBuilderMysql extends QB { //implements IQueryBuilder {
   public function crossJoin($table) {
     preg_match('/^(.+)\ (.+)$/', $table, $match);
     $this->_joinAliases[] = $match[2];
-    $this->_join .= "CROSS JOIN " . QB::bt($match[1]);
+    $this->_join .= "CROSS JOIN " . QB::bt($match[1]) . ' ';
     return $this;
   }
 
   // Pagination
 
   public function limit($offsetOrLimit, $limit = null) {
-    $this->_limit = ($limit === null) ? $offsetOrLimit : $offsetOrLimit . ", " . $limit;
+    $this->_limit = ($limit === null) ? $offsetOrLimit : $offsetOrLimit . ", " . $limit . ' ';
     return $this;
   }
 
   public function page($page, $perPage = 25) {
-    $this->_limit = (($page - 1) * $perPage) . ", " . $perPage;
+    $this->_limit = (($page - 1) * $perPage) . ", " . $perPage . ' ';
     return $this;
   }
 
